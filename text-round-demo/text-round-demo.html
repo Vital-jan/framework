@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src = 'http://explorer.org.ua/framework/explorer.js'></script>
+    <style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        background-image: url(bgi.jpg);
+        background-size: contain;
+    }
+    .text {
+        width: 50%;
+        display: block;
+        height: 100vh;
+        float:left;
+        position: relative;
+    }
+    #text2 {
+        height: 50vh;
+    }
+    </style>
+</head>
+<body>
+    <div class="text" id="text">
+    </div>
+    <div class="text" id="text2">
+
+    </div>
+    <div class="text" id="text3">
+
+    </div>
+
+
+    <script>
+    var a = -90;
+    var da = 2;
+    var a2 = -90;
+    var s = 0, ds = 1;
+    var rad = 150; dRad = 1;
+    var sz = 60, dsz = 1;
+    var a3 = 50, da3 = 1, r3 = 200, dr3 = -1, s3 = 180; ds3 = 1;
+
+    for (var x = 0; x < 2; x++) {
+        document.getElementById('text2').innerHTML += (writeRound('Text rotation D E M O', 300, 400, 60, 250, -75 + x, 150, 'color:#993300; text-shadow: 0 2px 3px gray;'));
+    }
+    document.getElementById('text2').innerHTML += (writeRound('Возможности отрисовки текста по кругу', 300, 400, 20, 150, -75, 150, 'color:#993300; text-shadow: 0 2px 3px gray;'));
+    
+    timer = setInterval( function () {
+        document.getElementById('text3').innerHTML = (writeRound('---===##############@:>', 200, 200, 30, r3, a3, s3, 'color:brown;'));
+
+        document.getElementById('text').innerHTML = (writeRound(`${da>0 ? 'По часовой стрелке' : 'Против часовой стрелки'}`, 300, 300, 60, rad, a, 270, 'color:#990000; text-shadow: 0 3px 5px gray;'));
+        document.getElementById('text').innerHTML += (writeRound(`${da<0 ? 'По часовой стрелке' : 'Против часовой стрелки'}`, 300, 300, sz - 10, rad + 50, a2, -250 - s, 'color:brown; text-shadow: 0 2px 5px black;'));
+    a += da;
+    a2 -= da;
+    if (a >=360) da = -1;
+    if (a<=0) da = 1;
+    s += ds;
+    if (s > 90 || s <= 0) ds = -ds;
+    rad += dRad;
+    if (rad > 180 || rad < 150) dRad *= -1;
+    sz += dsz;
+    if (sz > 70 || sz < 60) dsz *= -1;
+
+    r3 += dr3;
+    a3 += da3;
+    s3 += ds3;
+
+    if (r3 > 300 || r3 < 50) dr3 *= -1;
+    if (a3 > 350 || a3 < -300) da3 *= -1;
+    if (s3 > 300 || s3 < 50) ds3 *= -1;
+
+    }, 50);
+    </script> 
+</body>
+</html>
