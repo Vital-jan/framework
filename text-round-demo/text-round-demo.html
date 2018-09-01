@@ -54,7 +54,7 @@
     document.getElementById('text2').innerHTML += (writeRound('Возможности отрисовки текста по кругу', 300, 400, 20, 150, -75, 150, 'color:#993300; text-shadow: 0 2px 3px gray;'));
     
     timer = setInterval( function () {
-        document.getElementById('text3').innerHTML = (writeRound('---===##############@:>', 200, 200, 30, r3, a3, s3, 'color:brown;'));
+        document.getElementById('text3').innerHTML = (writeRound('---===##############@:>', r3-50, r3-100, 30, r3, a3, s3, 'color:brown;'));
 
         document.getElementById('text').innerHTML = (writeRound(`${da>0 ? 'По часовой стрелке' : 'Против часовой стрелки'}`, 300, 300, 60, rad, a, 270, 'color:#990000; text-shadow: 0 3px 5px gray;'));
         document.getElementById('text').innerHTML += (writeRound(`${da<0 ? 'По часовой стрелке' : 'Против часовой стрелки'}`, 300, 300, sz - 10, rad + 50, a2, -250 - s, 'color:brown; text-shadow: 0 2px 5px black;'));
