@@ -20,7 +20,7 @@ function writeRound(s, x, y, size, radius, start, sector, userStyle) {
         top: ${y + radius * -direction - size / 2}px;
         left: ${x - size / 2}px;
         transform-origin: ${size / 2}px ${radius * direction + size / 2}px;
-        border: 1px solid black;
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
         `;
