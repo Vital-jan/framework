@@ -1,14 +1,16 @@
-function writeRound(s, x, y, size, radius, start, end, userStyle) {
+function writeRound(s, x, y, size, radius, start, sector, userStyle) {
     // возвращаеи html-код для отрисовки текста по радиусу.
-    // writeRound (<текст>,<коорд x>,<коорд y>,<разм. шрифта>,<радиус>,<нач. угол>,<кон. угол>, <направление> [,<польз. css>])
+    // writeRound (<текст>,<коорд x>,<коорд y>,<разм. шрифта>,<радиус>,<нач. угол>,<сектор> [,<польз. css>])
     // s - строка текста;
     // x, y - координаты центра окружности базовой линии текста в px;
     // size - размер шрифта в px;
     // radius - радиус окружности базовой линии текста в px;
-    // start, end - начальный и конечный угол сегмента окружности базовой линии текста в deg;
+    // start - начальный угол поворота текста в deg;
+    // sector - угол сектора окружности, в котором размещается текст;
+    //          положительное значение - по часовой стрелке, и наоборот.
     // userStyle - необязательный параметр - пользовательский css стиль;
     var t = '';
-    var direction = start < end ? 1 : -1;
+    var direction = sector / Math.abs(sector);
     var charStyle = `
         position: absolute;
         text-align:center;
@@ -23,7 +25,7 @@ function writeRound(s, x, y, size, radius, start, end, userStyle) {
         padding: 0;
         `;
     var deg = start - 180 * (direction - 1) / -2;
-    var degPlus = (end-start)/(s.length-1);
+    var degPlus = (start + sector - start)/(s.length-1);
     for (var n = 0; n < s.length; n++) {
         var charStyle2 =` transform: rotate(${deg}deg);`;
         deg += degPlus;
