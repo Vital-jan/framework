@@ -1,3 +1,8 @@
+// Подключение:
+// <script src="http://explorer.org.ua/framework/explorer.js"></script>
+// Для функций, требующих таблицу стилей:
+// <link rel="stylesheet" href="http://explorer.org.ua/framework/explorer.css">
+
 //=================================================================================
     function writeRound(s, x, y, size, radius, start, sector, userStyle) {
 //=================================================================================
@@ -98,14 +103,8 @@
     '>${s}</div>`;
     return s;
     }
-// ========================================================================
-    function $_ (s) { // возвращает ссылку на document.getElementById(s)
-// ========================================================================
-
-        return document.getElementById(s);
-    }
 //======================================================================
-    function toNumber (a) { //преобразует строку в число, отбрасывая все ненужные символы в перед и после цифр.
+    function toNumber (a) { //преобразует строку в число, отбрасывая все ненужные символы перед и после цифр.
 //======================================================================
 // если строка не содержит цифр, возвращает NaN ()
         if (a.length == 0) return NaN;
@@ -136,8 +135,225 @@
         return res + end;
     }
 //======================================================================
-// возвращает случайное целое число между <min> и <max> включительно.
     function rnd (min, max) {
+//======================================================================
+// возвращает случайное целое число между <min> и <max> включительно.
         return Math.round(Math.random() * (max - min) + min);
     }
 
+// =====================================================================
+    function digitalForward (n, d = 0) {
+// =====================================================================
+// возвращает строку текста из числа <n>, дополненного до <d> разрядов ведущими нулями.    
+        if (isNaN(n)) return '';
+        let s = '' + n;
+        while (s.length < d) s = '0' + s;
+        return s;
+    }
+    
+// =====================================================================
+function parseIntBack(s) {
+// =====================================================================
+// возвр. число, обрасывая все символы в начале строки перед числом (parseInt наоборот).
+return +parseInt(s.split('').reverse().join('')).toString().split('').reverse().join('');
+}
+
+// =====================================================================
+function slider (max, prefix, delay, fade, sliderId, sliderWidth, sliderHeight, title = []) {
+// аргументы: ==========================================================
+    // --------------------------------------------
+    // max - максимальный индекс рисунка (к-во изображений)
+    // prefix - префикс имени файла изображения
+    // delay - время показа изображения в секундах
+    // fade - время набора 100% непрозрачности в % от delay
+    // sliderId - идентификатор элемента-родителя;
+    // sliderWidth - ширина слайдера в px
+    // sliderHeight - ширина слайдера в px
+	// title - подписи к картинкам (массив). если значение не указано, не отображается.
+    // ----------------------------------------------------
+    // Подключить таблицу стилей. При необходимости, можно дополнительно стилизовать каждый слайдер по его идентификатору.
+    
+    const fps = 25; // частота обновления, кадров/сек
+    let counter = 1; // индекс текущего рисунка
+    let prevCounter = 0; // индекс предыдущего рисунка
+    let opacity = 0; // текущая прозрачность рисунка
+    let timeNext = 0; // время смены рисунка
+    let paused = false;
+
+    // стили для slider
+    let slider = document.querySelector(`#${sliderId}`);
+    slider.style.width = `${sliderWidth}px`;
+    slider.style.height = `${sliderHeight}px`;
+    slider.style.position = 'relative';
+
+    // обработчики для slider (пауза в прокрутке)
+    slider.onmouseenter = () => {
+        paused = true;
+    }
+    slider.onmouseleave = () => {
+        paused = false;
+    }
+
+    // создаем и стилизуем графический контент
+    let img = document.createElement('img');
+    slider.appendChild(img);
+    img.style.maxWidth = `${sliderWidth}px`;
+    img.style.maxHeight = `${sliderHeight}px`;
+
+    // создаем и стилизуем контейнер для элементов-кружочков
+    let circles = document.createElement("div");
+    circles.classList = 'circles';
+    slider.appendChild(circles);
+    circles.style.width = `${sliderWidth}px`;
+    circles.id = `${sliderId}-circles`;
+    circles.addEventListener('click', function (event){
+        if (!isNaN(parseIntBack(event.target.id))) {
+        prevCounter = counter;
+        counter = parseIntBack(event.target.id);
+        }
+    });
+
+    // создаем подпись под слайдером
+    let ttl = document.createElement('h3');
+    slider.appendChild(ttl);
+    
+    // добавляем элементы стрелка влево-вправо
+    let arrow = [];
+    for (n = 0; n < 2; n++) {
+        arrow[n] = document.createElement('div');
+        arrow[n].innerHTML = '<i style="transform: rotate(180deg)" class="material-icons"> arrow_forward_ios </i>';
+        arrow[n].classList.add('arrow');
+        circles.appendChild(arrow[n]);
+    }
+    arrow[1].style.transform = 'rotate(180deg)'; // поворачиваем правую стрелку вправо
+
+    // обработчики клика по стрелкам
+    arrow[0].addEventListener('click',function () {
+        if (counter > 1) {
+            prevCounter = counter;
+            counter--;
+        }
+    });
+    arrow[1].addEventListener('click', function() {
+        if (counter < max) {
+            prevCounter = counter;
+            counter++;
+        }
+    });
+    
+    var s = sliderWidth / max * 0.4; // вычисляем размер кружочка
+    s = s > (sliderHeight / max * 0.4) ? sliderHeight / max * 0.4 : s;
+
+    // создаем, добавляем и стилизуем элементы-кружочки
+    for (var n = 1; n <=max; n++) {
+        var el = document.createElement('div');
+        circles.insertBefore(el, arrow[1]);
+        el.classList = 'circle';
+        el.id = `${sliderId}-circle${n}`;
+        el.style.width = `${s}px`;
+        el.style.height = `${s}px`;
+        el.style.borderWidth = `${Math.round(s/4)}px`;
+    }
+
+    // таймер
+    let interval = setInterval(function (){
+        // активируем/деактивируем стрелки влево/право
+        if (counter == max) {arrow[1].classList.add('no-active')} else {
+            arrow[1].classList.remove('no-active')};
+        if (counter == 1) {arrow[0].classList.add('no-active')} else {
+            arrow[0].classList.remove('no-active')};
+
+        img.src = `${prefix}${counter}.jpg`; // отрисовка изображения
+        if (title[counter - 1] !== undefined) {ttl.innerHTML = title[counter - 1]} else {
+            ttl.innerHTML = title[counter - 1] = ''};
+
+        if (prevCounter != 0) { 
+        let elem = document.querySelector(`#${sliderId}-circle${prevCounter}`); // стираем предыдущий кружочек
+        elem.style.backgroundColor = 'white';
+        };
+
+        elem = document.querySelector(`#${sliderId}-circle${counter}`); // рисуем текущий кружочек
+        elem.style.backgroundColor = 'black';
+
+        if (timeNext >= fps * delay) { // при достижении времени смены изображения:
+            timeNext = 0;
+            opacity = 0;
+            prevCounter = counter;
+            counter = counter < max ? counter + 1 : 1;
+            img.src = `${prefix}${counter}.jpg`;
+        }
+
+        if (!paused) timeNext++; // если не наведен курсор - инкрементируем счетчик времени
+
+        opacity = opacity < 1 ? opacity + 1 / (fps * fade) : 1; // увеличиваем яркость, пока не будет достигнута максимальная
+        img.style.opacity = opacity;
+        ttl.style.opacity = opacity;
+
+    },1000/fps);
+    };
+
+// ==================================================================================
+function modalWindow (caption, text, buttons = [], action, windowWidth = 300, color = '#000', bgColor = '#fff'){
+// ==================================================================================
+    // Управляет отображением модальных окон
+    // caption, text - заголовок и содержимое окна. Могут содержать html.
+    // buttons - массив, содержащий подписи к кнопкам. Кол-во кнопок будет соответствовать длине массива.
+    // action - функция, вызываемая после нажатия одной из кнопок. в качестве аргумента функция action принимает порядковый номер нажатойкнопки.
+    // необязательные аргументы:
+    // windowWidth - ширина окна (по умолч. 300px)
+    // color - цвет текста и кнопки закрытия
+    // bgColor - цвет фона окна.
+        function closeWindow(w) { // закрытие модального окна
+            w.style.display = 'none';
+        }
+        // если элемент "модальное окно" не существует, создаем и отображаем его.
+        let modalWindow = document.querySelector('.modal-window');
+        if (modalWindow === null) {
+            modalWindow = document.createElement('div');
+            modalWindow.classList.add('modal-window');
+            document.querySelector('body').appendChild(modalWindow);
+        }
+        modalWindow.innerHTML = `<div class="modal"></div>`;
+        modalWindow.style.display = 'block';
+        wnd = document.querySelector('.modal-window div.modal');
+        wnd.style.width = windowWidth+'px';
+        wnd.style.color = color;
+        wnd.style.backgroundColor = bgColor;
+        // наполняем окно контентом
+        wnd.innerHTML = `<header>${caption}<div class="btn"><div class="cross"></div><div class="cross2"></div></header>`;
+        let cross = document.querySelector('div.modal-window div.btn div.cross');
+        cross.style.borderColor = color;
+        cross.style.backgroundColor = color;
+        cross = document.querySelector('div.modal-window div.btn div.cross2');
+        cross.style.borderColor = color;
+        cross.style.backgroundColor = color;
+        wnd.innerHTML += `<p>${text}</p>`;
+        wnd.innerHTML += '<footer></footer>';
+        let footer = document.querySelector('.modal-window div.modal footer');
+        // добавляем кнопки
+        for (let n = 0; n < buttons.length; n++) footer.innerHTML += `<button id="modal-btn${n}">${buttons[n]}</button>`;
+        // назначаем обработчики событий для кнопок
+        for (let n = 0; n < buttons.length; n++) document.querySelector(`#modal-btn${n}`).addEventListener('click', function(){
+            closeWindow(modalWindow);
+            action(n);
+            });
+        // назначаем обработчик события кнопке закрытия
+        document.querySelector('.modal-window div.modal div.btn').addEventListener('click',function(){closeWindow(modalWindow)});
+    }
+// Пример:
+/* <body>
+    <button id="btn1">qwerty</button>
+    <br>
+    <button id="btn2">save</button>
+<script>
+    document.querySelector('#btn1').onclick = function(){modalWindow('Caption','Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consequatur, laboriosam!' ,['Ok', 'Cancel'], function (n){
+    console.log(n);}
+    , 300,'black','rgb(100,100,100')};
+
+    function save(n) {
+        if (n == 0) {console.log('save')} else console.log('without save');
+    }
+
+    document.querySelector('#btn2').onclick = function(){modalWindow('Exit without save?','If you choice "without save", your data will be lost', ['Save', 'Exit without save'], save, 400,'white','red')};
+</script>
+</body> */
