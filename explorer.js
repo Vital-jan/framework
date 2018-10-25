@@ -293,19 +293,24 @@ function slider (max, prefix, delay, fade, sliderId, sliderWidth, sliderHeight, 
     };
 
 // ==================================================================================
-function modalWindow (caption, text, buttons = [], action, windowWidth = 300, color = '#000', bgColor = '#fff'){
+function modalWindow (caption, text, buttons = [], action, windowWidth = 300, windowHeight = 300, color = '#000', bgColor = '#fff', clickAction){
 // ==================================================================================
     // Управляет отображением модальных окон
     // caption, text - заголовок и содержимое окна. Могут содержать html.
     // buttons - массив, содержащий подписи к кнопкам. Кол-во кнопок будет соответствовать длине массива.
     // action - функция, вызываемая после нажатия одной из кнопок. в качестве аргумента функция action принимает порядковый номер нажатойкнопки.
     // необязательные аргументы:
-    // windowWidth - ширина окна (по умолч. 300px)
+    // windowWidth, windowHeight - размеры окна (по умолч. 300px)
     // color - цвет текста и кнопки закрытия
     // bgColor - цвет фона окна.
+    // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
         function closeWindow(w) { // закрытие модального окна
             w.style.display = 'none';
         }
+        // определяем полную высоту рабочей области
+        let body=document.querySelector('body');
+        let html = document.querySelector('html');
+        let hgh = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight );
         // если элемент "модальное окно" не существует, создаем и отображаем его.
         let modalWindow = document.querySelector('.modal-window');
         if (modalWindow === null) {
@@ -313,23 +318,28 @@ function modalWindow (caption, text, buttons = [], action, windowWidth = 300, co
             modalWindow.classList.add('modal-window');
             document.querySelector('body').appendChild(modalWindow);
         }
+        modalWindow.style.height = `${hgh}px`;
         modalWindow.innerHTML = `<div class="modal"></div>`;
         modalWindow.style.display = 'block';
         wnd = document.querySelector('.modal-window div.modal');
         wnd.style.width = windowWidth+'px';
         wnd.style.color = color;
         wnd.style.backgroundColor = bgColor;
+        wnd.style.height = windowHeight+'px';
         // наполняем окно контентом
-        wnd.innerHTML = `<header>${caption}<div class="btn"><div class="cross"></div><div class="cross2"></div></header>`;
+        wnd.innerHTML = `<div class="header">${caption}<div class="btn"><div class="cross"></div><div class="cross2"></div></div>`;
         let cross = document.querySelector('div.modal-window div.btn div.cross');
         cross.style.borderColor = color;
         cross.style.backgroundColor = color;
         cross = document.querySelector('div.modal-window div.btn div.cross2');
         cross.style.borderColor = color;
         cross.style.backgroundColor = color;
-        wnd.innerHTML += `<p>${text}</p>`;
-        wnd.innerHTML += '<footer></footer>';
-        let footer = document.querySelector('.modal-window div.modal footer');
+        wnd.innerHTML += `<div id="modal-window-content"></div>`;
+        let pTeg = document.querySelector('#modal-window-content');
+        pTeg.style.height = (windowHeight - 120) + 'px';
+        pTeg.innerHTML = text;
+        wnd.innerHTML += '<div class="footer"></div>';
+        let footer = document.querySelector('.modal-window div.modal div.footer');
         // добавляем кнопки
         for (let n = 0; n < buttons.length; n++) footer.innerHTML += `<button id="modal-btn${n}">${buttons[n]}</button>`;
         // назначаем обработчики событий для кнопок
@@ -338,7 +348,11 @@ function modalWindow (caption, text, buttons = [], action, windowWidth = 300, co
             action(n);
             });
         // назначаем обработчик события кнопке закрытия
-        document.querySelector('.modal-window div.modal div.btn').addEventListener('click',function(){closeWindow(modalWindow)});
+        document.querySelector('.modal-window div.modal div.btn').addEventListener('click',function(){
+            closeWindow(modalWindow);
+            action(null)});
+        // назначаем обработчик события click для модального окна
+        document.querySelector('.modal-window div.modal').addEventListener('click',function(){clickAction(event)});
     }
 // Пример:
 /* <body>
@@ -348,7 +362,7 @@ function modalWindow (caption, text, buttons = [], action, windowWidth = 300, co
 <script>
     document.querySelector('#btn1').onclick = function(){modalWindow('Caption','Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consequatur, laboriosam!' ,['Ok', 'Cancel'], function (n){
     console.log(n);}
-    , 300,'black','rgb(100,100,100')};
+    , 300, 300, 'black','rgb(100,100,100')};
 
     function save(n) {
         if (n == 0) {console.log('save')} else console.log('without save');

@@ -76,8 +76,10 @@
 /* ----- Модальное окно ----- */
 div.modal-window {
     box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
+    font-family: sans-serif;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
     z-index: 1000000000;
     background-color: rgba(0,0,0,.5);
     position: absolute;
@@ -85,33 +87,53 @@ div.modal-window {
     left: 0;
 }
 div.modal-window div.modal {
-    background-color: #fff;
+    z-index: 1000000001;
+    box-sizing: border-box;
     border-radius: 5px;
     border: 2px solid gray;
     box-shadow: 3px 3px 3px 3px rgb(0,0,0,0.5);
     color: black;
-    position: absolute;
+    position: fixed;
     left: 0;
     right: 0;
     margin: 100px auto;
     text-align: center;
+    overflow: hidden;
 }
-div.modal-window div.modal header {
+div.modal-window div.modal .header {
     border-bottom: 1px solid gray;
+    box-sizing: content-box;
     text-align: center;
     font-size: 18px;
     line-height: 18px;
     font-weight: bold;
-    padding: 10px 10px;
-    margin: 0;
-}
-div.modal-window div.modal p {
     padding: 10px;
+    margin: 0;
+    position: relative;
+    height:20px;
 }
-div.modal-window div.modal footer {
+div.modal-window div.modal #modal-window-content {
+    padding: 10px;
+    margin: 0;
+    display: block;
+    overflow-y: auto;
+    overflow-x: auto;
+    height: 255px;
+}
+div.modal-window div.modal #modal-window-content table{
+    display: block;
+}
+
+div.modal-window div.modal .footer {
     border-top: 1px solid gray;
     text-align: center;
+    box-sizing: content-box;
     padding: 10px;
+    position: absolute;
+    bottom: 0;
+    height: 25px;
+    width: 100%;
+    margin: 0;
 }
 div.modal-window div.modal div.btn {
     width: 21px;
@@ -149,4 +171,5 @@ div.modal-window div.modal button {
     box-shadow: 3px 3px 3px 2px rgba(20,20,20,0.5);
     cursor: pointer;
     margin: 0 5px;
+    padding: 5px;
 }
