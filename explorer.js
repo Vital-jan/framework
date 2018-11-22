@@ -171,7 +171,7 @@ function clearToNumber (s, minus = false, float = false) {
     }
 
 
-    return (1*r).toString();
+    return r;
 }
 
 //========================================================================
@@ -217,7 +217,9 @@ function slider(
   sliderId,
   sliderWidth,
   sliderHeight,
-  title = []
+  title = [],
+  arrowsVisible = true,
+  circlesVisible = true
 ) {
   // аргументы: ==========================================================
   // --------------------------------------------
@@ -264,6 +266,8 @@ function slider(
   let circles = document.createElement('div');
   circles.classList = 'circles';
   slider.appendChild(circles);
+  if (!circlesVisible) circles.style.visibility = 'hidden';
+  console.log(circlesVisible)
   circles.style.width = `${sliderWidth}px`;
   circles.id = `${sliderId}-circles`;
   circles.addEventListener('click', function(event) {
@@ -284,6 +288,7 @@ function slider(
     arrow[n].innerHTML =
       '<i style="transform: rotate(180deg)" class="material-icons"> arrow_forward_ios </i>';
     arrow[n].classList.add('arrow');
+    if (!arrowsVisible) arrow[n].style.visibility = 'hidden';
     circles.appendChild(arrow[n]);
   }
   arrow[1].style.transform = 'rotate(180deg)'; // поворачиваем правую стрелку вправо
