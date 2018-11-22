@@ -3,6 +3,8 @@ const version = '1.0.1';
 
 // Подключение:
 // <script src="http://explorer.org.ua/framework/explorer.js"></script>
+// Требует подключения:
+// <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></head>
 // Для функций, требующих таблицу стилей:
 // <link rel="stylesheet" href="http://explorer.org.ua/framework/explorer.css">
 
@@ -110,7 +112,7 @@ function starRateWrite(
     '>${s}</div>`;
   return s;
 }
-//======================================================================
+//========================================================================
 function toNumber(a) {
   //преобразует строку в число, отбрасывая все ненужные символы перед и после цифр.
   //======================================================================
@@ -120,31 +122,13 @@ function toNumber(a) {
   a = parseFloat(a);
   return a;
 }
-// ========================================================================
+// ==========================================================================
 function numberToString(n, d = 0) {
   //возвращает строку в виде числа с разделителями групп разрядов
   // ========================================================================
   // numberToString (n [,d])
   // n - исходное число (вещественное), d - к-во знаков после десятичной точки, необязательный аргумент.
 
-  //код версии 1.0.0
-  // function numberToString(num, dec = 0)
-  // num = 0 + toNumber(num);
-  // if (isNaN(num)) return NaN;
-  // dec = Math.abs(dec);
-  // var res = num < 0 ? '-' : '';
-  // num = Math.abs(num).toFixed(dec);
-  // var end = dec > 0 ? num.substr(num.indexOf('.', dec)) : '';
-  // var end = dec > 0 ? `.${num.substr(num.length - dec, dec)}` : '';
-  // num = dec > 0 ? num.substr(0, num.length - dec - 1) : num;
-  // var arr = num.split('');
-  // arr.forEach(function(item, n, arr) {
-  //   if (((arr.length - n) % 3 == 0) & (n != 0)) res += ' ';
-  //   res += item;
-  // });
-  // return res + end;
-
-  // код версии 1.0.1
   if (isNaN(n)) return NaN;
   n = Math.round(n * Math.pow(10, d)) / Math.pow(10, d);
   n = n.toFixed(d);
@@ -160,14 +144,44 @@ function numberToString(n, d = 0) {
       .trim() + end
   );
 }
-//======================================================================
+
+// ========================================================================
+function clearToNumber (s, minus = false, float = false) {
+	// ====================================================================
+	// убирает из строки все лишние символы, кроме цифр и спецсимволов
+    // s - исходная строка
+    // minus - допускаются ли отрицательные числа
+    // decimal - допускаются ли вещественные числа
+    let n = 0; // текущий символ
+    let r = ''; // результат
+    let dotAdd = float; // надо ли добавлять точку (добавляем только первую точку в строке если float = true)
+
+    if (s[0] == '-') {
+        n++;
+        if (minus) r = '-';
+    }
+    
+    while (n < s.length) {
+        if (s[n] == '.' && float == true) {
+            r += '.';
+            float = false;
+        }
+        if (s.charCodeAt(n) >= 48 && s.charCodeAt(n) <= 57) r += s[n];
+        n++;
+    }
+
+
+    return (1*r).toString();
+}
+
+//========================================================================
 function rnd(min, max) {
   //======================================================================
   // возвращает случайное целое число между <min> и <max> включительно.
   return Math.round(Math.random() * (max - min) + min);
 }
 
-// =====================================================================
+// =======================================================================
 function digitalForward(n, d = 0) {
   // =====================================================================
   // возвращает строку текста из числа <n>, дополненного до <d> разрядов ведущими нулями.
@@ -177,7 +191,7 @@ function digitalForward(n, d = 0) {
   return s;
 }
 
-// =====================================================================
+// =======================================================================
 function parseIntBack(s) {
   // =====================================================================
   // возвр. число, обрасывая все символы в начале строки перед числом (parseInt наоборот).
@@ -195,6 +209,7 @@ function parseIntBack(s) {
 
 // =====================================================================
 function slider(
+// =====================================================================
   max,
   prefix,
   delay,
@@ -226,6 +241,7 @@ function slider(
 
   // стили для slider
   let slider = document.querySelector(`#${sliderId}`);
+  slider.classList.toggle("slider");
   slider.style.width = `${sliderWidth}px`;
   slider.style.height = `${sliderHeight}px`;
   slider.style.position = 'relative';
