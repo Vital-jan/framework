@@ -9,6 +9,8 @@
     <title>Document</title>
 </head>
 <body>
+    <div>    </div>
+    <span></span>
     <script>
         let action = () => {};
         let clickAction = () => {        console.log(numberToString(12345,3));
@@ -16,6 +18,8 @@
         let text = '';
         for (let n = 0; n<25; n++) text += `asdf${n}<br>`;
         modalWindow ('Caption', text, ['Ok'], action, 300, 300, '#000', '#fff', clickAction);
+
+        document.querySelector('span').innerHTML = starRateWrite(1.5);
     </script>
 </body>
 </html>

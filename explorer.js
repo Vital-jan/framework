@@ -1,4 +1,4 @@
-// версия 1.0.1
+// версия 1.0.2-23.11.2018
 const version = '1.0.1';
 
 // Подключение:
@@ -64,11 +64,13 @@ function starRateWrite(
             overflow: hidden;
             position: relative;
             display: block;
-            height: 20px;`;
+            height: 20px;
+            `;
     starSpan = `
             position: relative;
             display: inline-block;
             width: 20px;
+            float:left;
             `;
     starImg = `
             width: 20px;
@@ -109,6 +111,7 @@ function starRateWrite(
         justify-content:center;
         width: 100px;
         height: 20px;
+        position: relative;
     '>${s}</div>`;
   return s;
 }
@@ -170,8 +173,7 @@ function clearToNumber (s, minus = false, float = false) {
         n++;
     }
 
-
-    return r;
+    return r == '' ? '0' : r;
 }
 
 //========================================================================
@@ -377,8 +379,7 @@ function modalWindow(
   windowHeight = 300,
   color = '#000',
   bgColor = '#fff',
-  clickAction
-) {
+  clickAction) {
   // ==================================================================================
   // Управляет отображением модальных окон
   // caption, text - заголовок и содержимое окна. Могут содержать html.
