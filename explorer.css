@@ -125,6 +125,9 @@ div.modal-window div.modal #modal-window-content table{
 }
 
 div.modal-window div.modal .footer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
     border-top: 1px solid gray;
     text-align: center;
     box-sizing: content-box;

@@ -4,7 +4,7 @@ const version = '1.0.1';
 // Подключение:
 // <script src="http://explorer.org.ua/framework/explorer.js"></script>
 // Требует подключения:
-// <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></head>
+// <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 // Для функций, требующих таблицу стилей:
 // <link rel="stylesheet" href="http://explorer.org.ua/framework/explorer.css">
 
@@ -96,11 +96,8 @@ function starRateWrite(
   var s = '';
   for (var i = 1; i <= 5; i++) {
     var x = 0;
-    if (i < rate) x = 1;
-    if (i == rate) x = 1;
-    if ((i < rate) & (i == Math.floor(rate)))
-      x = Math.floor((rate - i) * 10) / 10;
-    if (i > Math.ceil(rate)) x = 0;
+    if (i <= rate) x = 1;
+    if ((i > rate) & (i == Math.ceil(rate))) x = rate - Math.floor(rate); 
     s += starRate(x, path);
   }
   s = `<div style='
@@ -233,8 +230,12 @@ function slider(
   // sliderWidth - ширина слайдера в px
   // sliderHeight - ширина слайдера в px
   // title - подписи к картинкам (массив). если значение не указано, не отображается.
+  // arrowsVisible, circlesVisible - видимость стрелок и кружочков
   // ----------------------------------------------------
   // Подключить таблицу стилей. При необходимости, можно дополнительно стилизовать каждый слайдер по его идентификатору.
+
+  let slider = document.querySelector(`#${sliderId}`);
+  if (slider == null) return;
 
   const fps = 25; // частота обновления, кадров/сек
   let counter = 1; // индекс текущего рисунка
@@ -244,8 +245,7 @@ function slider(
   let paused = false;
 
   // стили для slider
-  let slider = document.querySelector(`#${sliderId}`);
-  slider.classList.toggle("slider");
+  slider.classList.add("slider");
   slider.style.width = `${sliderWidth}px`;
   slider.style.height = `${sliderHeight}px`;
   slider.style.position = 'relative';
@@ -269,7 +269,6 @@ function slider(
   circles.classList = 'circles';
   slider.appendChild(circles);
   if (!circlesVisible) circles.style.visibility = 'hidden';
-  console.log(circlesVisible)
   circles.style.width = `${sliderWidth}px`;
   circles.id = `${sliderId}-circles`;
   circles.addEventListener('click', function(event) {
@@ -325,7 +324,11 @@ function slider(
 
   // таймер
   let interval = setInterval(function() {
+    slider = document.querySelector(`#${sliderId}`); // проверяем наличие элемента slider в DOM
+    if (!slider) {clearInterval(interval); return;};
+
     // активируем/деактивируем стрелки влево/право
+    
     if (counter == max) {
       arrow[1].classList.add('no-active');
     } else {
@@ -336,7 +339,6 @@ function slider(
     } else {
       arrow[0].classList.remove('no-active');
     }
-
     img.src = `${prefix}${counter}.jpg`; // отрисовка изображения
     if (title[counter - 1] !== undefined) {
       ttl.innerHTML = title[counter - 1];
@@ -358,7 +360,7 @@ function slider(
       opacity = 0;
       prevCounter = counter;
       counter = counter < max ? counter + 1 : 1;
-      img.src = `${prefix}${counter}.jpg`;
+      img.setAttribute('src',`${prefix}${counter}.jpg`);
     }
 
     if (!paused) timeNext++; // если не наведен курсор - инкрементируем счетчик времени
@@ -379,7 +381,9 @@ function modalWindow(
   windowHeight = 300,
   color = '#000',
   bgColor = '#fff',
-  clickAction) {
+  clickAction,
+  submit = null
+  ) {
   // ==================================================================================
   // Управляет отображением модальных окон
   // caption, text - заголовок и содержимое окна. Могут содержать html.
@@ -390,6 +394,7 @@ function modalWindow(
   // color - цвет текста и кнопки закрытия
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
+  // номер кнопки, тип которой назначаем "submit"
   function closeWindow(w) {
     // закрытие модального окна
     w.style.display = 'none';
@@ -434,8 +439,10 @@ function modalWindow(
   wnd.innerHTML += '<div class="footer"></div>';
   let footer = document.querySelector('.modal-window div.modal div.footer');
   // добавляем кнопки
-  for (let n = 0; n < buttons.length; n++)
-    footer.innerHTML += `<button id="modal-btn${n}">${buttons[n]}</button>`;
+  for (let n = 0; n < buttons.length; n++) {
+    let btnType = n == submit ? 'type = "submit"' : '';
+    footer.innerHTML += `<button id="modal-btn${n}" ${btnType}>${buttons[n]}</button>`;
+  }
   // назначаем обработчики событий для кнопок
   for (let n = 0; n < buttons.length; n++)
     document
@@ -459,19 +466,4 @@ function modalWindow(
     });
 }
 // Пример:
-/* <body>
-    <button id="btn1">qwerty</button>
-    <br>
-    <button id="btn2">save</button>
-<script>
-    document.querySelector('#btn1').onclick = function(){modalWindow('Caption','Lorem ipsum dolor sit, amet consectetur adipisicing elit. Consequatur, laboriosam!' ,['Ok', 'Cancel'], function (n){
-    console.log(n);}
-    , 300, 300, 'black','rgb(100,100,100')};
-
-    function save(n) {
-        if (n == 0) {console.log('save')} else console.log('without save');
-    }
-
-    document.querySelector('#btn2').onclick = function(){modalWindow('Exit without save?','If you choice "without save", your data will be lost', ['Save', 'Exit without save'], save, 400,'white','red')};
-</script>
-</body> */
+// modalWindow('','Бажаєте запросити мене на співбесіду?' ,['Так', 'Ні'], function (n){console.log('action');}, 300, 200, 'black', 'white', function(){})
