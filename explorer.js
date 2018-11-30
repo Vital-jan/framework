@@ -382,7 +382,6 @@ function modalWindow(
   color = '#000',
   bgColor = '#fff',
   clickAction,
-  submit = null
   ) {
   // ==================================================================================
   // Управляет отображением модальных окон
@@ -394,55 +393,58 @@ function modalWindow(
   // color - цвет текста и кнопки закрытия
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
-  // номер кнопки, тип которой назначаем "submit"
-  function closeWindow(w) {
+  // в качестве аргументов caption, text и buttons может выступать html
+  // если первый символ текста кнопки = "+" или "-" на кнопке отображается соотв. картинка
+
+  const closeWindow = (w) => {
     // закрытие модального окна
     w.style.display = 'none';
   }
-  // определяем полную высоту рабочей области
-  let body = document.querySelector('body');
-  let html = document.querySelector('html');
-  let hgh = Math.max(
-    body.scrollHeight,
-    body.offsetHeight,
-    html.clientHeight,
-    html.scrollHeight,
-    html.offsetHeight
-  );
+
+  const getMaxSize = () => {
+    let x = Math.max(document.documentElement.scrollWidth, window.innerWidth);
+    let y = Math.max(document.documentElement.scrollHeight, window.innerHeight);
+    return {x, y};
+}
+
   // если элемент "модальное окно" не существует, создаем и отображаем его.
   let modalWindow = document.querySelector('.modal-window');
   if (modalWindow === null) {
     modalWindow = document.createElement('div');
     modalWindow.classList.add('modal-window');
+    modalWindow.style.width = getMaxSize().x;
+    modalWindow.style.height = getMaxSize().y;
     document.querySelector('body').appendChild(modalWindow);
+    modalWindow.innerHTML = `<div class="modal"></div>`;
   }
-  modalWindow.style.height = `${hgh}px`;
-  modalWindow.innerHTML = `<div class="modal"></div>`;
-  modalWindow.style.display = 'block';
+  modalWindow.style.display = "block";
   wnd = document.querySelector('.modal-window div.modal');
   wnd.style.width = windowWidth + 'px';
   wnd.style.color = color;
   wnd.style.backgroundColor = bgColor;
   wnd.style.height = windowHeight + 'px';
+
   // наполняем окно контентом
-  wnd.innerHTML = `<div class="header">${caption}<div class="btn"><div class="cross"></div><div class="cross2"></div></div>`;
-  let cross = document.querySelector('div.modal-window div.btn div.cross');
-  cross.style.borderColor = color;
-  cross.style.backgroundColor = color;
-  cross = document.querySelector('div.modal-window div.btn div.cross2');
-  cross.style.borderColor = color;
-  cross.style.backgroundColor = color;
+  wnd.innerHTML = `
+  <div class="header">
+  ${caption}
+  <img src = "http://explorer.org.ua/framework/img/close_black.png" id="close">
+  </div>`;
   wnd.innerHTML += `<div id="modal-window-content"></div>`;
   let pTeg = document.querySelector('#modal-window-content');
   pTeg.style.height = windowHeight - 120 + 'px';
   pTeg.innerHTML = text;
   wnd.innerHTML += '<div class="footer"></div>';
   let footer = document.querySelector('.modal-window div.modal div.footer');
+
   // добавляем кнопки
   for (let n = 0; n < buttons.length; n++) {
-    let btnType = n == submit ? 'type = "submit"' : '';
-    footer.innerHTML += `<button id="modal-btn${n}" ${btnType}>${buttons[n]}</button>`;
+    let s = buttons[n];
+    if (s[0] == '+') s = '<img src = "http://explorer.org.ua/framework/img/ok.png">' + s.slice(1, s.length);
+    if (s[0] == '-') s = '<img src = "http://explorer.org.ua/framework/img/cancel.png">' + s.slice(1, s.length);
+    footer.innerHTML += `<button id="modal-btn${n}">${s}</button>`;
   }
+
   // назначаем обработчики событий для кнопок
   for (let n = 0; n < buttons.length; n++)
     document
@@ -451,18 +453,15 @@ function modalWindow(
         closeWindow(modalWindow);
         action(n);
       });
-  // назначаем обработчик события кнопке закрытия
-  document
-    .querySelector('.modal-window div.modal div.btn')
-    .addEventListener('click', function() {
-      closeWindow(modalWindow);
-      action(null);
-    });
-  // назначаем обработчик события click для модального окна
+
   document
     .querySelector('.modal-window div.modal')
     .addEventListener('click', function() {
       clickAction(event);
+      if (event.target.id="close") {
+        closeWindow(modalWindow);
+        action(null);
+      }
     });
 }
 // Пример:
