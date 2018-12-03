@@ -375,13 +375,14 @@ function slider(
 function modalWindow(
   caption,
   text,
-  buttons = [],
+  buttons = ['Ok'],
   action,
   windowWidth = 300,
   windowHeight = 300,
   color = '#000',
   bgColor = '#fff',
   clickAction,
+  btnDefault = 0
   ) {
   // ==================================================================================
   // Управляет отображением модальных окон
@@ -393,37 +394,33 @@ function modalWindow(
   // color - цвет текста и кнопки закрытия
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
+  // btnDefault - номер кнопки по умолчанию
   // в качестве аргументов caption, text и buttons может выступать html
   // если первый символ текста кнопки = "+" или "-" на кнопке отображается соотв. картинка
 
   const closeWindow = (w) => {
     // закрытие модального окна
     w.style.display = 'none';
+    document.removeEventListener('keydown', keyHandler);
+    document.body.style.overflow = "scroll";
   }
-
-  const getMaxSize = () => {
-    let x = Math.max(document.documentElement.scrollWidth, window.innerWidth);
-    let y = Math.max(document.documentElement.scrollHeight, window.innerHeight);
-    return {x, y};
-}
 
   // если элемент "модальное окно" не существует, создаем и отображаем его.
   let modalWindow = document.querySelector('.modal-window');
   if (modalWindow === null) {
     modalWindow = document.createElement('div');
     modalWindow.classList.add('modal-window');
-    modalWindow.style.width = getMaxSize().x;
-    modalWindow.style.height = getMaxSize().y;
-    document.querySelector('body').appendChild(modalWindow);
+    document.body.appendChild(modalWindow);
     modalWindow.innerHTML = `<div class="modal"></div>`;
   }
+
+  document.body.style.overflow = "hidden";
   modalWindow.style.display = "block";
   wnd = document.querySelector('.modal-window div.modal');
   wnd.style.width = windowWidth + 'px';
   wnd.style.color = color;
   wnd.style.backgroundColor = bgColor;
   wnd.style.height = windowHeight + 'px';
-
   // наполняем окно контентом
   wnd.innerHTML = `
   <div class="header">
@@ -442,27 +439,61 @@ function modalWindow(
     let s = buttons[n];
     if (s[0] == '+') s = '<img src = "http://explorer.org.ua/framework/img/ok.png">' + s.slice(1, s.length);
     if (s[0] == '-') s = '<img src = "http://explorer.org.ua/framework/img/cancel.png">' + s.slice(1, s.length);
-    footer.innerHTML += `<button id="modal-btn${n}">${s}</button>`;
+    footer.innerHTML += `<button type="button" id="modal-btn${n}">${s}</button>`;
   }
 
-  // назначаем обработчики событий для кнопок
-  for (let n = 0; n < buttons.length; n++)
-    document
-      .querySelector(`#modal-btn${n}`)
-      .addEventListener('click', function() {
-        closeWindow(modalWindow);
-        action(n);
-      });
+let btns = footer.querySelectorAll('button');
+if (btnDefault <0 || isNaN(btnDefault) || btnDefault == null) btnDefault = 0;
+if (btnDefault > buttons.length - 1) btnDefault = buttons.length - 1;
+btns[btnDefault].focus();
 
-  document
+// назначаем обработчик событий для кнопок
+function btnHandler(e) {
+  closeWindow(modalWindow);
+  action(parseIntBack(e.target.id));
+};
+btns.forEach((i, n) => {
+  i.addEventListener('click', btnHandler);
+});
+
+  // обработчик нажатия Esc
+  document.addEventListener('keydown', escHandler);
+  function escHandler(e)
+  {
+    if (e.keyCode == 27) {
+      closeWindow(modalWindow);
+      action(null);
+    }
+  };
+
+  let firstItem = btns[0];
+  let lastItem = btns[btns.length - 1];
+  // if (pTeg.querySelector('input') != null) firstItem = pTeg.querySelector('input');
+
+  // обработчик tab для последней кнопки
+  lastItem.addEventListener('keydown', function(e){
+    if (e.keyCode == 9 && !e.shiftKey) {
+        firstItem.focus();
+        e.preventDefault();
+      }
+  });
+  // обработчик tab для первой кнопки
+  firstItem.addEventListener('keydown', function(e){
+      if (e.keyCode == 9 && e.shiftKey) {
+        lastItem.focus();
+        e.preventDefault();
+      }
+    });
+
+  document // обработчик клика для остальных эл-тов мод.окна
     .querySelector('.modal-window div.modal')
     .addEventListener('click', function() {
       clickAction(event);
-      if (event.target.id="close") {
+      if (event.target.id == "close") { // обработчик кнопки закрытия
         closeWindow(modalWindow);
         action(null);
       }
     });
 }
 // Пример:
-// modalWindow('','Бажаєте запросити мене на співбесіду?' ,['Так', 'Ні'], function (n){console.log('action');}, 300, 200, 'black', 'white', function(){})
+// modalWindow('','Бажаєте запросити мене на співбесіду?' ,['+Так', '-Ні'], function (n){console.log('action');}, 300, 200, 'black', 'white', function(){})
