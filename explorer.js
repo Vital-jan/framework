@@ -382,7 +382,8 @@ function modalWindow(
   color = '#000',
   bgColor = '#fff',
   clickAction,
-  btnDefault = 0
+  btnDefault = 0,
+  formAction = ''
   ) {
   // ==================================================================================
   // Управляет отображением модальных окон
@@ -395,13 +396,14 @@ function modalWindow(
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
   // btnDefault - номер кнопки по умолчанию
+  // formAction - имя php файла для события submit
   // в качестве аргументов caption, text и buttons может выступать html
   // если первый символ текста кнопки = "+" или "-" на кнопке отображается соотв. картинка
 
   const closeWindow = (w) => {
     // закрытие модального окна
     w.style.display = 'none';
-    document.removeEventListener('keydown', keyHandler);
+    document.removeEventListener('keydown', escHandler);
     document.body.style.overflow = "scroll";
   }
 
@@ -421,6 +423,7 @@ function modalWindow(
   wnd.style.color = color;
   wnd.style.backgroundColor = bgColor;
   wnd.style.height = windowHeight + 'px';
+
   // наполняем окно контентом
   wnd.innerHTML = `
   <div class="header">
@@ -430,19 +433,28 @@ function modalWindow(
   wnd.innerHTML += `<div id="modal-window-content"></div>`;
   let pTeg = document.querySelector('#modal-window-content');
   pTeg.style.height = windowHeight - 120 + 'px';
-  pTeg.innerHTML = text;
+  pTeg.innerHTML = `<form action=${formAction}> ${text}`; // начало формы
   wnd.innerHTML += '<div class="footer"></div>';
   let footer = document.querySelector('.modal-window div.modal div.footer');
 
   // добавляем кнопки
   for (let n = 0; n < buttons.length; n++) {
+    let btnType = 'button';
     let s = buttons[n];
-    if (s[0] == '+') s = '<img src = "http://explorer.org.ua/framework/img/ok.png">' + s.slice(1, s.length);
+    if (s[0] == '+') {
+      s = '<img src = "http://explorer.org.ua/framework/img/ok.png">' + s.slice(1, s.length);
+      btnType = 'submit';
+    }
     if (s[0] == '-') s = '<img src = "http://explorer.org.ua/framework/img/cancel.png">' + s.slice(1, s.length);
-    footer.innerHTML += `<button type="button" id="modal-btn${n}">${s}</button>`;
+    
+    footer.innerHTML += `<button type="${btnType}" id="modal-btn${n}">${s}</button>`;
   }
+  footer.innerHTML += '</form>'; // конец формы
+  let form = document.querySelector('#modal-window-content form');
+  console.log(form)
+form.addEventListener('submit', ()=>{console.log('submit')})
 
-let btns = footer.querySelectorAll('button');
+let btns = document.querySelectorAll('.footer button');
 if (btnDefault <0 || isNaN(btnDefault) || btnDefault == null) btnDefault = 0;
 if (btnDefault > buttons.length - 1) btnDefault = buttons.length - 1;
 btns[btnDefault].focus();
@@ -450,7 +462,7 @@ btns[btnDefault].focus();
 // назначаем обработчик событий для кнопок
 function btnHandler(e) {
   closeWindow(modalWindow);
-  action(parseIntBack(e.target.id));
+  action(parseIntBack(e.currentTarget.id));
 };
 btns.forEach((i, n) => {
   i.addEventListener('click', btnHandler);
@@ -468,8 +480,7 @@ btns.forEach((i, n) => {
 
   let firstItem = btns[0];
   let lastItem = btns[btns.length - 1];
-  // if (pTeg.querySelector('input') != null) firstItem = pTeg.querySelector('input');
-
+  if (document.querySelector('#modal-window-content input') != null) firstItem = document.querySelector('#modal-window-content input');
   // обработчик tab для последней кнопки
   lastItem.addEventListener('keydown', function(e){
     if (e.keyCode == 9 && !e.shiftKey) {
