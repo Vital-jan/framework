@@ -396,7 +396,6 @@ function modalWindow(
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
   // btnDefault - номер кнопки по умолчанию
-  // formAction - имя php файла для события submit
   // в качестве аргументов caption, text и buttons может выступать html
   // если первый символ текста кнопки = "+" или "-" на кнопке отображается соотв. картинка
 
@@ -433,7 +432,7 @@ function modalWindow(
   wnd.innerHTML += `<div id="modal-window-content"></div>`;
   let pTeg = document.querySelector('#modal-window-content');
   pTeg.style.height = windowHeight - 120 + 'px';
-  pTeg.innerHTML = `<form action=${formAction}> ${text}`; // начало формы
+  pTeg.innerHTML = text;
   wnd.innerHTML += '<div class="footer"></div>';
   let footer = document.querySelector('.modal-window div.modal div.footer');
 
@@ -449,10 +448,6 @@ function modalWindow(
     
     footer.innerHTML += `<button type="${btnType}" id="modal-btn${n}">${s}</button>`;
   }
-  footer.innerHTML += '</form>'; // конец формы
-  let form = document.querySelector('#modal-window-content form');
-  console.log(form)
-form.addEventListener('submit', ()=>{console.log('submit')})
 
 let btns = document.querySelectorAll('.footer button');
 if (btnDefault <0 || isNaN(btnDefault) || btnDefault == null) btnDefault = 0;
