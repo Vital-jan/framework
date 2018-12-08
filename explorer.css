@@ -218,5 +218,7 @@ div.modal-window div.modal button * {
 div.modal-window div.modal button img {
   margin-right: 5px;
   height: 20px;
+  position: relative;
+  top: -2px;
 }
 /*# sourceMappingURL=explorer.css.map */
