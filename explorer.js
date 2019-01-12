@@ -503,3 +503,47 @@ btns.forEach((i, n) => {
 }
 // Пример:
 // modalWindow('','Бажаєте запросити мене на співбесіду?' ,['+Так', '-Ні'], function (n){console.log('action');}, 300, 200, 'black', 'white', function(){})
+
+// ==================================================================================
+function runLine(text, el, time = 0) {
+// ==================================================================================
+  // реализует бегущую строку.
+  // text - текст для отображения
+  // el - элемент, в который внедряется бегущая строка
+  // time - интервал в милисекундах, через который происходит сдвиг на 3px
+  // Пример:
+  // runLine('Сторінка створена без використання жодних фреймворків', document.querySelector('h1'), 20)
+          if (el == undefined) return;
+          let stop = false;
+  
+          el.addEventListener('mouseenter', ()=> {stop = true});
+          el.addEventListener('mouseleave', ()=> {stop = false});
+  
+          let interval;
+          el.style.paddingLeft = 0;
+          el.style.paddingRight = 0;
+          el.style.overflow = 'hidden';
+          el.style.position = 'relative';
+          let maxWidth = el.getBoundingClientRect().width;
+  
+          let line = document.createElement('div');
+          el.appendChild(line);
+          line.style.display = 'inline-block';
+  
+          let width = 0;
+          for (let n = 0; n < text.length; n++) {
+              line.innerHTML = text[n];
+              if (text[n] != ' ') {width += line.getBoundingClientRect().width} else width += width / n;
+          }
+  
+          line.innerHTML = text;
+          line.style.width = width + 'px';
+          line.style.position = 'absolute';
+          line.style.left = maxWidth + 'px';
+  
+          if (time == 0) {clearInterval(interval)} else interval = setInterval(()=>{
+              let l = parseInt(line.style.left);
+              if (l < -width) l = maxWidth;
+              if(!stop) line.style.left = l - 3 +'px';
+          }, time);
+  }
