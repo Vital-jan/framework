@@ -193,17 +193,23 @@ function digitalForward(n, d = 0) {
 // =======================================================================
 function parseIntBack(s) {
   // =====================================================================
-  // возвр. число, обрасывая все символы в начале строки перед числом (parseInt наоборот).
-  return +parseInt(
-    s
-      .split('')
-      .reverse()
-      .join('')
-  )
-    .toString()
-    .split('')
-    .reverse()
-    .join('');
+  // отбрасывает все символы перед числом и после числа
+  // 'id120' возвратит 120
+  // 'id120abc21' возвратит 120
+  // 'abc' возвратит NaN
+  for (x = 0; x < s.length; x++) if(!isNaN(+parseInt(s[x]))) return parseInt(s.substring(x, s.length));
+  return NaN;
+  
+  // return +parseInt(
+  //   s
+  //     .split('')
+  //     .reverse()
+  //     .join('')
+  // )
+  //   .toString()
+  //   .split('')
+  //   .reverse()
+  //   .join('');
 }
 
 // =====================================================================
@@ -381,7 +387,7 @@ function modalWindow(
   windowHeight = 300,
   color = '#000',
   bgColor = '#fff',
-  clickAction,
+  clickAction = null,
   btnDefault = 0,
   formAction = ''
   ) {
@@ -494,7 +500,7 @@ btns.forEach((i, n) => {
   document // обработчик клика для остальных эл-тов мод.окна
     .querySelector('.modal-window div.modal')
     .addEventListener('click', function() {
-      clickAction(event);
+      if (clickAction != null) clickAction(event);
       if (event.target.id == "close") { // обработчик кнопки закрытия
         closeWindow(modalWindow);
         action(null);
@@ -513,6 +519,7 @@ function runLine(text, el, time = 0) {
   // time - интервал в милисекундах, через который происходит сдвиг на 3px
   // Пример:
   // runLine('Сторінка створена без використання жодних фреймворків', document.querySelector('h1'), 20)
+  // высота элемента, в который внедряем строку, должна быть определена в CSS.
           if (el == undefined) return;
           let stop = false;
   
