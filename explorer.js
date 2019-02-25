@@ -1,5 +1,5 @@
-// версия 1.0.2-23.11.2018
-const version = '1.0.1';
+// версия 1.0.3-26.02.2019
+const version = '1.0.3';
 
 // Подключение:
 // <script src="http://explorer.org.ua/framework/explorer.js"></script>
@@ -199,17 +199,6 @@ function parseIntBack(s) {
   // 'abc' возвратит NaN
   for (x = 0; x < s.length; x++) if(!isNaN(+parseInt(s[x]))) return parseInt(s.substring(x, s.length));
   return NaN;
-  
-  // return +parseInt(
-  //   s
-  //     .split('')
-  //     .reverse()
-  //     .join('')
-  // )
-  //   .toString()
-  //   .split('')
-  //   .reverse()
-  //   .join('');
 }
 
 // =====================================================================
@@ -554,3 +543,37 @@ function runLine(text, el, time = 0) {
               if(!stop) line.style.left = l - 3 +'px';
           }, time);
   }
+
+  // -------------------------------------------------------------
+  function fade(el, time, start = 0, finish = 1, fps = 30){
+  // -------------------------------------------------------------
+        // fade (el, time [,start, finish, fps])
+        // el - элемент DOM
+        // time - время затухания в мс
+        // start, finish - начальное и конечное значение opacity (от 0 до 1),
+        // - какое из этих значений больше определяет исчезновение или возникновение элемента.
+        // fps - кадров в секунду.
+                let opc = start;
+                let opcPlus = (finish - start) / fps; // дельта opacity
+                el.style.opacity = opc;
+                let interval = setInterval(function() {
+    
+                    if (start < finish) {
+                        if (opc < finish) {opc += opcPlus}
+                    else {
+                        opc = finish;
+                        clearInterval(interval);
+                       }
+                    }
+    
+                    if (finish < start) {
+                        if (opc > finish) {opc += opcPlus}
+                    else {
+                        opc = finish;
+                        clearInterval(interval);
+                        }
+                    }
+                    
+                el.style.opacity = opc;
+                }, time / fps);
+    }
