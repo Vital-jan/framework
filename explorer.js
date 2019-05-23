@@ -1,5 +1,4 @@
-// версия 1.1.0-01.03.2019
-const version = '1.1.0';
+// версия 1.1.0 - 01.03.2019
 
 // Подключение:
 // <script src="http://explorer.org.ua/framework/explorer.js"></script>
@@ -374,7 +373,8 @@ function modalWindow(
   bgColor = '#fff',
   clickAction = null,
   btnDefault = 0,
-  formAction = ''
+  formAction = '',
+  modalId = 'modal-window'
   ) {
   // ==================================================================================
   // Управляет отображением модальных окон
@@ -387,6 +387,7 @@ function modalWindow(
   // bgColor - цвет фона окна.
   // clickAction - функция обработчик события click - позволяет встраивать другие управляющие элементы в тело модального окна
   // btnDefault - номер кнопки по умолчанию
+  // modalId - пользовательский идентификатор при необходимости вызова вложенного модального окна
   // в качестве аргументов caption, text и buttons может выступать html
   // если первый символ текста кнопки = "+" или "-" на кнопке отображается соотв. картинка
 
@@ -394,13 +395,15 @@ function modalWindow(
     // закрытие модального окна
     w.style.display = 'none';
     document.removeEventListener('keydown', escHandler);
-    document.body.style.overflow = "scroll";
+    document.body.style.overflow = "auto";
   }
 
   // если элемент "модальное окно" не существует, создаем и отображаем его.
-  let modalWindow = document.querySelector('.modal-window');
+  // если существует, создаем новый элемент.
+  let modalWindow = document.querySelector(`#${modalId}`);
   if (modalWindow === null) {
     modalWindow = document.createElement('div');
+    modalWindow.setAttribute('id',`${modalId}`);
     modalWindow.classList.add('modal-window');
     document.body.appendChild(modalWindow);
     modalWindow.innerHTML = `<div class="modal"></div>`;
@@ -408,8 +411,7 @@ function modalWindow(
 
   document.body.style.overflow = "hidden";
   modalWindow.style.display = "block";
-  wnd = document.querySelector('.modal-window div.modal');
-  console.log(typeof(windowWidth))
+  wnd = document.querySelector(`#${modalId} div.modal`);
   if (typeof(windowWidth)=='number') windowWidth = windowWidth + 'px';
   
   wnd.style.width = windowWidth;
@@ -422,29 +424,30 @@ function modalWindow(
   wnd.innerHTML = `
   <div class="header">
   ${caption}
-  <img src = "http://explorer.org.ua/framework/img/close_black.png" id="close">
+  <img src = "http://explorer.org.ua/framework/img/close_black.png" id="close" onerror = "this.style.display = 'none'">
   </div>`;
-  wnd.innerHTML += `<div id="modal-window-content"></div>`;
-  let pTeg = document.querySelector('#modal-window-content');
+
+  wnd.innerHTML += `<div class="modal-window-content"></div>`;
+  let pTeg = document.querySelector(`#${modalId} .modal-window-content`);
   pTeg.style.height = windowHeight - 120 + 'px';
   pTeg.innerHTML = text;
   wnd.innerHTML += '<div class="footer"></div>';
-  let footer = document.querySelector('.modal-window div.modal div.footer');
+  let footer = document.querySelector(`#${modalId} div.modal div.footer`);
 
   // добавляем кнопки
   for (let n = 0; n < buttons.length; n++) {
     let btnType = 'button';
     let s = buttons[n];
     if (s[0] == '+') {
-      s = '<img src = "http://explorer.org.ua/framework/img/ok.png">' + s.slice(1, s.length);
-      btnType = 'submit';
+      s = `<img src = "http://explorer.org.ua/framework/img/ok.png" onerror = "this.style.display = 'none'">` + s.slice(1, s.length);
+      // btnType = 'submit';
     }
-    if (s[0] == '-') s = '<img src = "http://explorer.org.ua/framework/img/cancel.png">' + s.slice(1, s.length);
+    if (s[0] == '-') s = `<img src = "http://explorer.org.ua/framework/img/cancel.png" onerror = "this.style.display = 'none'">` + s.slice(1, s.length);
     
-    footer.innerHTML += `<button type="${btnType}" id="modal-btn${n}">${s}</button>`;
+    footer.innerHTML += `<button class='button' type="${btnType}" id="modal-btn${n}">${s}</button>`;
   }
 
-let btns = document.querySelectorAll('.footer button');
+let btns = document.querySelectorAll(`#${modalId} .footer button`);
 if (btnDefault <0 || isNaN(btnDefault) || btnDefault == null) btnDefault = 0;
 if (btnDefault > buttons.length - 1) btnDefault = buttons.length - 1;
 btns[btnDefault].focus();
@@ -470,7 +473,7 @@ btns.forEach((i, n) => {
 
   let firstItem = btns[0];
   let lastItem = btns[btns.length - 1];
-  if (document.querySelector('#modal-window-content input') != null) firstItem = document.querySelector('#modal-window-content input');
+  if (document.querySelector(`#${modalId} .modal-window-content input`) != null) firstItem = document.querySelector(`#${modalId} .modal-window-content input`);
   // обработчик tab для последней кнопки
   lastItem.addEventListener('keydown', function(e){
     if (e.keyCode == 9 && !e.shiftKey) {
@@ -487,7 +490,7 @@ btns.forEach((i, n) => {
     });
 
   document // обработчик клика для остальных эл-тов мод.окна
-    .querySelector('.modal-window div.modal')
+    .querySelector(`#${modalId} div.modal`)
     .addEventListener('click', function() {
       if (clickAction != null) clickAction(event);
       if (event.target.id == "close") { // обработчик кнопки закрытия
@@ -497,7 +500,7 @@ btns.forEach((i, n) => {
     });
 }
 // Пример:
-// modalWindow('','Бажаєте запросити мене на співбесіду?' ,['+Так', '-Ні'], function (n){console.log('action');}, 300, 200, 'black', 'white', function(){})
+// modalWindow('','Бажаєте запросити мене на співбесіду?' ,['+Так', '-Ні'], function (n){console.log('action');}, '80%', 200, 'black', 'white', function(){})
 
 // ==================================================================================
 function runLine(text, el, time = 0) {
