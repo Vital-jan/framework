@@ -558,22 +558,25 @@ function runLine(text, el, time = 0) {
         // fps - кадров в секунду.
                 let opc = start;
                 let opcPlus = (finish - start) / fps; // дельта opacity
+                el.style.visibility = 'visible';
                 el.style.opacity = opc;
                 let interval = setInterval(function() {
-    
-                    if (start < finish) {
-                        if (opc < finish) {opc += opcPlus}
+                  
+                  if (start < finish) {
+                    if (opc < finish) {opc += opcPlus}
                     else {
-                        opc = finish;
-                        clearInterval(interval);
-                       }
+                      opc = finish;
+                      el.style.visibility = 'hidden';
+                      clearInterval(interval);
                     }
-    
-                    if (finish < start) {
-                        if (opc > finish) {opc += opcPlus}
+                  }
+                  
+                  if (finish < start) {
+                    if (opc > finish) {opc += opcPlus}
                     else {
-                        opc = finish;
-                        clearInterval(interval);
+                      opc = finish;
+                      el.style.visibility = 'hidden';
+                      clearInterval(interval);
                         }
                     }
                     
